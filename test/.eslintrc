@@ -1,0 +1,13 @@
+{
+    "globals": {
+        "__root": true,
+        "testUtils": true,
+        "describe": true,
+        "it": true,
+        "expect": true,
+        "afterEach": true,
+        "after": true,
+        "beforeEach": true,
+        "before": true
+    }
+}
