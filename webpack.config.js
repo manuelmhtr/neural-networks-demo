@@ -1,30 +1,19 @@
-const webpack = require('webpack');
-const {resolve} = require('path');
+const { resolve } = require('path');
 
-const PATHS = {
-  js: resolve(__dirname, 'web/js'),
-  build: resolve(__dirname, 'dist'),
-  assets: resolve(__dirname, 'assets'),
-  style: resolve(__dirname, 'src', 'modules', 'legacy', 'css', 'main.less')
-};
+const webpack = require('webpack');
+const ExtractTextPlugin = require('extract-text-webpack-plugin');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
+const OpenBrowserPlugin = require('open-browser-webpack-plugin');
 
 const config = {
-  context: resolve(__dirname, 'web'),
+  devtool: 'cheap-module-eval-source-map',
 
   entry: [
     'react-hot-loader/patch',
-    // activate HMR for React
-
     'webpack-dev-server/client?http://localhost:8080',
-    // bundle the client for webpack-dev-server
-    // and connect to the provided endpoint
-
     'webpack/hot/only-dev-server',
-    // bundle the client for hot reloading
-    // only- means to only hot reload for successful updates
-
-    './js/index.jsx'
-    // the entry point of our app
+    './main.js',
+    './assets/scss/main.scss'
   ],
 
   output: {
@@ -33,39 +22,53 @@ const config = {
     publicPath: '/'
   },
 
-  devtool: 'inline-source-map',
+  context: resolve(__dirname, 'web'),
 
   devServer: {
     hot: true,
-    // enable HMR on the server
-
     contentBase: resolve(__dirname, 'dist'),
-    // match the output path
-
     publicPath: '/'
-    // match the output `publicPath`
   },
 
   module: {
     rules: [
       {
-        test: /\.jsx?$/,
-        use: [ 'babel-loader' ],
+        test: /\.js$/,
+        loaders: [
+          'babel-loader'
+        ],
         exclude: /node_modules/
       },
       {
-        test: /\.css$/,
-        use: [ 'style-loader', 'css-loader?modules' ]
-      }
+        test: /\.scss$/,
+        exclude: /node_modules/,
+        use: ExtractTextPlugin.extract({
+          fallback: 'style-loader',
+          use: [
+            'css-loader',
+            {
+              loader: 'sass-loader',
+              query: {
+                sourceMap: false
+              }
+            }
+          ]
+        })
+      },
+      { test: /\.(png|jpg)$/, use: 'url-loader?limit=15000' },
+      { test: /\.eot(\?v=\d+.\d+.\d+)?$/, use: 'file-loader' },
+      { test: /\.woff(2)?(\?v=[0-9]\.[0-9]\.[0-9])?$/, use: 'url-loader?limit=10000&mimetype=application/font-woff' },
+      { test: /\.[ot]tf(\?v=\d+.\d+.\d+)?$/, use: 'url-loader?limit=10000&mimetype=application/octet-stream' },
+      { test: /\.svg(\?v=\d+\.\d+\.\d+)?$/, use: 'url-loader?limit=10000&mimetype=image/svg+xml' }
     ]
   },
 
   plugins: [
-    new webpack.HotModuleReplacementPlugin(),
-    // enable HMR globally
-
-    new webpack.NamedModulesPlugin()
-    // prints more readable module names in the browser console on HMR updates
+    new webpack.optimize.ModuleConcatenationPlugin(),
+    new ExtractTextPlugin({ filename: 'style.css', disable: false, allChunks: true }),
+    new CopyWebpackPlugin([{ from: 'vendors', to: 'vendors' }]),
+    new OpenBrowserPlugin({ url: 'http://localhost:8080' }),
+    new webpack.HotModuleReplacementPlugin()
   ]
 };
 

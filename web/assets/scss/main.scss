@@ -1,0 +1,31 @@
+$color: #262828;
+
+body {
+  color: $color;
+}
+
+.margin-top-1x { margin-top: 10px; }
+.margin-top-2x { margin-top: 20px; }
+
+.grid {
+  .row {
+    margin: 0;
+  }
+
+  .square {
+    float: left;
+    background-color: #ddd;
+    width: 50vw;
+    height: 50vw;
+    max-width: 50px;
+    max-height: 50px;
+    margin: 1px;
+  }
+
+  .square.active {
+    background-color: #000;
+  }
+}
+
+.result {
+}
